@@ -30,7 +30,7 @@ export class ReactiveEffect {
   public parent: ReactiveEffect = null
   public deps: Array<Set<ReactiveEffect>> = []
   public active = true
-  constructor(public fn: Function,public schedule:Function) { }
+  constructor(public fn: Function, public schedule: Function) { }
   run() {
     if (!this.active) return this.fn()
 
@@ -53,8 +53,8 @@ export class ReactiveEffect {
   }
 }
 
-export function effect<T = any>(fn: ()=>T,options?:any) {
-  const _effect = new ReactiveEffect(fn,options.schedule)
+export function effect<T = any>(fn: () => T, options?: any) {
+  const _effect = new ReactiveEffect(fn, options.schedule)
   _effect.run()
 
   const runner = _effect.run.bind(_effect)
@@ -90,7 +90,7 @@ export function track(target: object, type: 'get', key: any) {
   trackEffects(dep)
 }
 // 用於做出 dep: Set{activeEffect}
-export function trackEffects(dep:Set<ReactiveEffect>) {
+export function trackEffects(dep: Set<ReactiveEffect>) {
   if (activeEffect && !dep.has(activeEffect)) {
     // 在被傳入的Set地址中添加當前執行的渲染函數
     dep.add(activeEffect)
@@ -103,19 +103,19 @@ export function trigger(target: any, type: 'set', key: any, value: any, oldValue
   // 檢查變更的對象是否綁定渲染函數（意即是否需要更新頁面）
   const depsMap = targetMap.get(target)
   if (!depsMap) return
-  // 若該對象已綁定渲染函數，則檢查變更的屬性是否綁定渲染函數（須淺拷貝，避免下方forEach超自然死迴圈）
+  // 若該對象已綁定渲染函數，則檢查變更的屬性是否綁定渲染函數（須深拷貝，避免下方forEach超自然死迴圈）
   let effects = depsMap.get(key)
-  if(effects) {
+  if (effects) {
     triggerEffect(effects)
   }
 }
 // 依序執行數據綁定的所有渲染函數
-export function triggerEffect(effects:Set<ReactiveEffect>) {
+export function triggerEffect(effects: Set<ReactiveEffect>) {
   effects = new Set(effects)
   effects.forEach(effect => {
     if (effect !== activeEffect) {
       // 若effect()的參數options有schedule屬性，則執行自定義的schedule()
-      if(effect.schedule) effect.schedule()
+      if (effect.schedule) effect.schedule()
       // 否則照舊綁定關聯數據並渲染頁面
       else effect.run()
     }
