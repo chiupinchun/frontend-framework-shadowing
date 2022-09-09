@@ -5,6 +5,8 @@ import { reactive, effect, computed, watch, ref } from './reactive/'
 import { h, Text } from './runtime-core'
 import { render } from './runtime-dom'
 
+
+
 const app: HTMLElement = document.querySelector('#app')
 
 render(h('ul', { onClick: testFn }, [

@@ -4,6 +4,7 @@
 // }
 import { RenderOptions } from "../runtime-dom"
 import { isString, ShapeFlags } from "../shared"
+import { getLongestSubsequence } from "./sequence"
 import { createVNode, isSameVnode, Text, VNode } from "./vnode"
 
 export function createRenderer(renderOptions: RenderOptions) {
@@ -123,6 +124,7 @@ export function createRenderer(renderOptions: RenderOptions) {
     }
   }
 
+  // diff
   const patchKeyedChildren = (oldChildren: Array<VNode>, newChildren: Array<VNode>, el: HTMLElement) => {
     let pointer = 0
     let oldEnd = oldChildren.length - 1
@@ -171,6 +173,7 @@ export function createRenderer(renderOptions: RenderOptions) {
       const toBePatched = newEnd - newStart + 1
       // 宣告一個將新子項映射至老子項（若老子中無則映射為0）的陣列，用於後續排序
       const newIndexToOldIndexMap = new Array(toBePatched).fill(0)
+
       // 遍歷老子，多的刪，缺的新增
       for (let i = oldStart; i <= oldEnd; i++) {
         const oldChild = oldChildren[i]
@@ -181,7 +184,10 @@ export function createRenderer(renderOptions: RenderOptions) {
           patch(oldChild, newChildren[newIndex], el)
         }
       }
+
       // 子節點排序
+      const increment = getLongestSubsequence(newIndexToOldIndexMap)
+      let j = increment.length - 1
       for (let i = toBePatched - 1; i >= 0; i--) {
         const index = newStart + i
         const current = newChildren[index]
@@ -189,7 +195,10 @@ export function createRenderer(renderOptions: RenderOptions) {
         // 新子不存在於老子則創建新節點
         if (newIndexToOldIndexMap[i] === 0) patch(null, current, el, anchor)
         // 新子既存則移動
-        else hostInsert(current.el, el, anchor)
+        else {
+          if (newIndexToOldIndexMap[i] !== increment[j]) hostInsert(current.el, el, anchor)
+          else j--
+        }
       }
     }
 
