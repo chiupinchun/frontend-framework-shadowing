@@ -1,6 +1,7 @@
 import { isArray, isString, ShapeFlags } from "../shared";
 
-export const Text = Symbol('text')
+export const Text = Symbol('Text')
+export const Fragment = Symbol('Fragment')
 
 export function isVnode(value: any) {
   return !!(value && value.__v_isVnode)

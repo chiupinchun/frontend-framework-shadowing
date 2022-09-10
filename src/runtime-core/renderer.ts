@@ -5,7 +5,7 @@
 import { RenderOptions } from "../runtime-dom"
 import { isString, ShapeFlags } from "../shared"
 import { getLongestSubsequence } from "./sequence"
-import { createVNode, isSameVnode, Text, VNode } from "./vnode"
+import { createVNode, Fragment, isSameVnode, Text, VNode } from "./vnode"
 
 export function createRenderer(renderOptions: RenderOptions) {
   const {
@@ -51,6 +51,9 @@ export function createRenderer(renderOptions: RenderOptions) {
       case Text:
         processText(oldNode, newNode, container)
         break
+      case Fragment:
+        processFragment(oldNode, newNode, container)
+        break
       default:
         if (shapeFlag & ShapeFlags.ELEMENT) processElement(oldNode, newNode, container, anchor)
     }
@@ -65,6 +68,12 @@ export function createRenderer(renderOptions: RenderOptions) {
       const el = newNode.el = oldNode.el
       if (oldNode.children !== newNode.children) hostSetText(el, <string>newNode.children)
     }
+  }
+
+  // 處理無用根標籤
+  const processFragment = (oldNode: VNode, newNode: VNode, container: HTMLElement) => {
+    if (oldNode === null) mountChildren(<Array<VNode | string>>newNode.children, container)
+    else patchChildren(oldNode, newNode, container)
   }
 
   const processElement = (oldNode: VNode, newNode: VNode, container: HTMLElement, anchor: HTMLElement | Text) => {

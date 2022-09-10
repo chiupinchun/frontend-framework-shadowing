@@ -2,7 +2,7 @@ import './css/index.less'
 // import { reactive } from './reactive/reactive'
 // import { effect } from './reactive/effect'
 import { reactive, effect, computed, watch, ref } from './reactive/'
-import { h, Text } from './runtime-core'
+import { Fragment, h, Text } from './runtime-core'
 import { render } from './runtime-dom'
 
 
@@ -16,7 +16,13 @@ render(h('ul', { onClick: testFn }, [
   h('li', { key: 'c' }, 'c')
 ]), app)
 function testFn() {
-  render(h('ul', {}, [
+  // render(h('ul', {}, [
+  //   h('li', { key: 'c' }, 'c'),
+  //   h('li', { key: 'a' }, 'a'),
+  //   h('li', { key: 'b' }, 'b')
+  // ]), app)
+  // render(h(Text, 'nmsl'), app)
+  render(h(Fragment, [
     h('li', { key: 'c' }, 'c'),
     h('li', { key: 'a' }, 'a'),
     h('li', { key: 'b' }, 'b')
