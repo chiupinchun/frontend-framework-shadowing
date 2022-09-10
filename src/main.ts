@@ -1,20 +1,25 @@
-import { ref } from "./reactive"
+import { computed, reactive, ref } from "./reactive"
 
 export default {
   template: `
-    <div style="color:hotpink;background-color:pink">
-      <h1>{{msg}}</h1>
-    </div>
+    <ul style="color:hotpink;background-color:pink">
+      <li>name: {{name}}</li>
+      <li>msg: {{data.msg}}</li>
+    </ul>
   `,
   setup() {
-    const msg = ref('nmsl')
+    const data = reactive({ msg: 'nmsl' })
+    const firstName = ref('c')
+    const lastName = ref('yw')
+    const name = computed(() => firstName.value + lastName.value)
     setTimeout(() => {
-      msg.value = 'wcnm'
+      data.msg = 'wcnm'
     }, 1000)
 
 
     return {
-      msg
+      data,
+      name
     }
   }
 }

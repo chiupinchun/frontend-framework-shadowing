@@ -1,5 +1,5 @@
 import { activeEffect, track, trigger } from "./effect"
-import {reactive} from './reactive'
+import { reactive } from './reactive'
 import { isObject } from "../shared"
 
 export const enum ReactiveFlags {
@@ -14,7 +14,7 @@ export const baseHandler = {
     track(target, 'get', key)
     let res = Reflect.get(target, key, receiver)
     // 深度代理
-    if(isObject(res)) return reactive(res)
+    if (isObject(res)) return reactive(res)
     return res
   },
   set(target: any, key: any, value: any, receiver: any): boolean {

@@ -4,26 +4,23 @@ import { render } from "../runtime-dom";
 import { isArray } from "../shared";
 import { effect } from "../reactive";
 
-import Vue from '../main'
-type Vue = typeof Vue
+import rootComponent from '../main'
+type RootComponent = typeof rootComponent
+
+export const data: any = rootComponent.setup()
 
 const app: HTMLElement = document.querySelector('#app')
-createApp(Vue, app)
+effect(() => {
+  createApp(rootComponent, app)
+}, {})
 
-
-
-function createApp(Vue: Vue, container: HTMLElement) {
-  let parsedTemplate = parse(Vue.template)
+function createApp(rootComponent: RootComponent, container: HTMLElement) {
+  let parsedTemplate = parse(rootComponent.template)
   if (parsedTemplate.length > 1) {
     parsedTemplate = { tag: Fragment, children: parsedTemplate }
   } else parsedTemplate = parsedTemplate[0]
 
-  // render(doH(parsedTemplate), container)
-
-  const data = Vue.setup()
-  effect(() => {
-    render(doH(parsedTemplate), container)
-  }, {})
+  render(doH(parsedTemplate), container)
 }
 
 

@@ -1,4 +1,5 @@
 import parseAttrsString from './parseAttrsString'
+import { parseTextData } from './parseData'
 
 export function parse(templateString: string) {
   templateString = templateString.trim()
@@ -47,7 +48,7 @@ export function parse(templateString: string) {
       // 檢查標籤內文字是否全為空
       if (!/^\s+$/.test(text)) {
         // console.log('text: ', text)
-        textStack[textStack.length - 1].children = text
+        textStack[textStack.length - 1].children = parseTextData(text)
       }
       index += text.length
     } else {
