@@ -3,6 +3,8 @@
 //   value: string
 // }
 
+import { parseAttrData } from "./parseData"
+
 
 
 export default function (attrsString: string) {
@@ -29,6 +31,7 @@ export default function (attrsString: string) {
 // 一次僅需處理一種屬性
 function generateAttr(attrString: string) {
   attrString = attrString.trim()
+  if (attrString[0] === ':') attrString = parseAttrData(attrString)
   const attrArr = attrString.match(/^(.+)="(.+)"$/)
   const result: any = {}
   if (attrArr[1] === 'style') {

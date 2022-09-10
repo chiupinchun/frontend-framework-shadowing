@@ -2,7 +2,7 @@ import { computed, reactive, ref } from "./reactive"
 
 export default {
   template: `
-    <ul style="color:hotpink;background-color:pink">
+    <ul :class="name" style="color:hotpink;background-color:pink">
       <li>name: {{name}}</li>
       <li>msg: {{data.msg}}</li>
     </ul>

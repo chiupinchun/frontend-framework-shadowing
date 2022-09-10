@@ -1,29 +1,23 @@
-import { data } from "../create-app"
+import { $data } from "../create-app"
+function init() {
+  for (let key in $data) {
+    if ($data[key].__v_isRef) window[<any>key] = $data[key].value
+    else window[<any>key] = $data[key]
+  }
+}
 
 export function parseTextData(text: string) {
-  const checkData = /({{.+}})/
-  const dirtyVar = text.match(checkData)[1]
-  const cleanVar = refine(dirtyVar)
-  let textArr
-  if (data[cleanVar] && data[cleanVar].__v_isRef) text = text.replace(dirtyVar, data[cleanVar].value)
-  else if (textArr = textIsObj(cleanVar)) {
-    const value = (<Array<string>>textArr).reduce((data: any, key: string) => data[key], data)
-    text = text.replace(dirtyVar, value)
-  } else if (data[cleanVar]) text = text.replace(dirtyVar, data[refine(cleanVar)])
-
-  return text
+  init()
+  const checkData = /{{(.+)}}/
+  const express = text.match(checkData)[1]
+  return eval(express)
 }
 
-export function parseAttrData(attr: string) {
+export function parseAttrData(attrStr: string) {
+  init()
+  const attrArr = attrStr.split('=')
+  const key = attrArr[0].slice(1)
+  const value = eval(attrArr[1].slice(1, attrArr[1].length - 1))
 
-}
-
-function refine(text: string) {
-  return text.replace('{{', '').replace('}}', '')
-}
-
-function textIsObj(text: string) {
-  const arr = text.split('.')
-  if (arr.length >= 2) return arr
-  else return false
+  return key + '="' + value + '"'
 }

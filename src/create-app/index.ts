@@ -7,7 +7,7 @@ import { effect } from "../reactive";
 import rootComponent from '../main'
 type RootComponent = typeof rootComponent
 
-export const data: any = rootComponent.setup()
+export const $data: any = rootComponent.setup()
 
 const app: HTMLElement = document.querySelector('#app')
 effect(() => {
@@ -21,6 +21,10 @@ function createApp(rootComponent: RootComponent, container: HTMLElement) {
   } else parsedTemplate = parsedTemplate[0]
 
   render(doH(parsedTemplate), container)
+
+  for (let key in $data) {
+    delete window[<any>key]
+  }
 }
 
 
