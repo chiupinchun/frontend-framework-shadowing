@@ -20,7 +20,7 @@ export default {
   
 您可以在template中傳入欲渲染至畫面的模板，  
 並在setup中寫入數據邏輯，  
-別忘了從/src/reactive資料夾引入需要的api喔。
+別忘了從/src/reactive資料夾引入需要的api喔。  
 範例如下：  
 ```
 import { ref } from './reactive'
@@ -40,3 +40,12 @@ export default {
   }  
 }  
 ```
+
+**・api**  
+  
+目前可使用的功能如下：  
+
+1. template相關  
+標籤內的「:」和「@」  
+2. setup相關  
+ref、reactive、computed、watch  
