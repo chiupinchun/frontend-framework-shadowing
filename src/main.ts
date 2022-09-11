@@ -2,6 +2,7 @@ import { computed, reactive, ref } from "./reactive"
 
 export default {
   template: `
+    <h1>Vue HatoVer.</h1>
     <ul :class="name" style="color:hotpink;background-color:pink">
       <li>name: {{name}}</li>
       <li>msg: {{data.msg}}</li>

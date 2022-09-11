@@ -7,8 +7,9 @@ function init() {
 }
 
 export function parseTextData(text: string) {
-  init()
   const checkData = /{{(.+)}}/
+  if (!checkData.test(text)) return text
+  init()
   const express = text.match(checkData)[1]
   return eval(express)
 }
