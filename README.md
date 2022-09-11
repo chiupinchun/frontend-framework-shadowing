@@ -11,10 +11,12 @@ ast資料夾參考自尚硅谷Vue源碼系列課程，
 **・使用方法**  
   
 在/src/main.ts中寫上以下代碼：  
+```
 export default {  
   template:``,  
   setup(){}  
 }  
+```
   
 您可以在template中傳入欲渲染至畫面的模板，  
 並在setup中寫入數據邏輯，  
