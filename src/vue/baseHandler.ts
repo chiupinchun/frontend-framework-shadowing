@@ -1,5 +1,5 @@
 import { reactive } from './reactive';
-import { track } from './effect';
+import { track, trigger } from './effect';
 
 export const enum ReactiveFlags {
   IS_REACTIVE = '__v_isReactive'
@@ -22,6 +22,7 @@ export default {
   },
   set: (target: Record<string, any>, key: string, value: any) => {
     target[key] = value;
+    trigger(target, key);
     return true;
   }
 };

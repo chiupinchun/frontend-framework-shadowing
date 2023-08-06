@@ -45,3 +45,20 @@ export const track = (target: object, key: string | symbol) => {
 
   trackEffects(dep);
 };
+
+const triggerEffect = (effects: Dep) => {
+  effects.forEach(effect => {
+    if (effect !== activeEffect) {
+      effect.run();
+    }
+  });
+};
+export const trigger = (target: object, key: string | symbol) => {
+  const depsMap = targetMap.get(target);
+  if (!depsMap) return;
+
+  const effects = depsMap.get(key);
+  if (effects) {
+    triggerEffect(effects);
+  }
+};
