@@ -1,3 +1,4 @@
 import './assets/css/style.less';
+import { reactive } from './vue';
 
-console.log('雞你太美');
+console.log(reactive({ a: 1, b: 2 }));
