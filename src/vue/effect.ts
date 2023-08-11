@@ -1,5 +1,5 @@
 let activeEffect: ReactiveEffect | undefined;
-class ReactiveEffect {
+export class ReactiveEffect {
   parent?: ReactiveEffect;
   constructor(public fn: Function) { }
 
@@ -29,7 +29,7 @@ type TargetMap = WeakMap<object, DepsMap>;
 //   >
 // >
 const targetMap: TargetMap = new WeakMap();
-const trackEffects = (dep: Dep) => {
+export const trackEffects = (dep: Dep) => {
   if (activeEffect && !dep.has(activeEffect)) {
     dep.add(activeEffect);
   }
@@ -46,7 +46,7 @@ export const track = (target: object, key: string | symbol) => {
   trackEffects(dep);
 };
 
-const triggerEffect = (effects: Dep) => {
+export const triggerEffect = (effects: Dep) => {
   effects.forEach(effect => {
     if (effect !== activeEffect) {
       effect.run();
