@@ -1,7 +1,7 @@
 let activeEffect: ReactiveEffect | undefined;
 export class ReactiveEffect {
   parent?: ReactiveEffect;
-  constructor(public fn: Function) { }
+  constructor(public fn: Function, public schedule?: Function) { }
 
   run() {
     try {
@@ -49,7 +49,8 @@ export const track = (target: object, key: string | symbol) => {
 export const triggerEffect = (effects: Dep) => {
   effects.forEach(effect => {
     if (effect !== activeEffect) {
-      effect.run();
+      if (effect.schedule) effect.schedule();
+      else effect.run();
     }
   });
 };

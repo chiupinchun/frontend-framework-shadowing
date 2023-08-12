@@ -2,6 +2,10 @@ import baseHandler, { ReactiveFlags } from './baseHandler';
 
 const reactiveMap = new WeakMap();
 
+export function isReactive(value: any) {
+  return !!(value && value[ReactiveFlags.IS_REACTIVE]);
+}
+
 export const reactive = (target: Record<string, any>) => {
   if (target && typeof target === 'object') {
     if (target[ReactiveFlags.IS_REACTIVE]) return target;

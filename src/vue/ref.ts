@@ -7,9 +7,14 @@ const toReactive = (value: any) => {
     value;
 };
 
-class RefImpl {
+export const isRef = (value: any) => {
+  return !!(value && value.__v_isRef);
+};
+
+export class RefImpl {
   public dep: Set<ReactiveEffect> = new Set;
   public _value;
+  public readonly __v_isRef = true;
   constructor(public rawValue: any) {
     this._value = toReactive(rawValue);
   }

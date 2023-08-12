@@ -1,5 +1,5 @@
 import './assets/css/style.less';
-import { ref, reactive } from './vue';
+import { ref, reactive, watch } from './vue';
 import effect from './vue/effect';
 
 const msg = ref('nmsl');
@@ -10,6 +10,10 @@ effect(() => {
       ${msg.value}
     </div>
   `;
+});
+
+watch(msg, (nv: string, ov: string) => {
+  console.log(nv, ov);
 });
 
 setInterval(() => {
