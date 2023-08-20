@@ -1,5 +1,5 @@
 import { RenderOptions } from "../runtime-dom";
-import { Text, Fragment, VNode, ShapeFlags, isSameVnode } from "./vnode";
+import { Text, Fragment, VNode, ShapeFlags, isSameVnode, createVNode } from "./vnode";
 
 export const createRenderer = (renderOptions: RenderOptions) => {
   const {
@@ -49,6 +49,55 @@ export const createRenderer = (renderOptions: RenderOptions) => {
       default:
         if (shapeFlag & ShapeFlags.ELEMENT) processElement(oldNode, newNode, container, anchor);
     }
+  };
+
+  const processText = (oldNode: VNode, newNode: VNode, container: HTMLElement) => {
+    if (oldNode === null) {
+      newNode.el = hostCreateText(<string>newNode.children);
+      hostInsert(newNode.el, container);
+    } else {
+      const el = newNode.el = oldNode.el;
+      if (oldNode.children !== newNode.children) hostSetText(el, <string>newNode.children);
+    }
+  };
+
+  const processFragment = (oldNode: VNode, newNode: VNode, container: HTMLElement) => {
+    if (oldNode === null) mountChildren(<(VNode | string)[]>newNode.children, container);
+    else patchChildren(oldNode, newNode, container);
+  };
+
+  const processElement = (oldNode: VNode, newNode: VNode, container: HTMLElement, anchor: HTMLElement | Text) => {
+    if (oldNode === null) mountElement(newNode, container, anchor);
+    else patchElement(oldNode, newNode);
+  };
+
+  const mountChildren = (children: (VNode | string)[], container: HTMLElement) => {
+    for (let i = 0; i < children.length; i++) {
+      children[i] = normalize(children[i]);
+      patch(null, <VNode>children[i], container);
+    }
+  };
+
+  // 將可能是字串的子節點加工為虛擬DOM
+  const normalize = (child: VNode | string) => {
+    if (typeof child === 'string') return createVNode(Text, null, <string>child);
+    return <VNode>child;
+  };
+
+  const mountElement = (vnode: VNode, container: HTMLElement, anchor: HTMLElement | Text) => {
+    const { type, props, children, shapeFlag } = vnode;
+    const el = vnode.el = hostCreateElement(<string>type);
+    if (props) {
+      for (const key in props) {
+        hostPatchProp(el, key, null, props[key]);
+      }
+    }
+    if (shapeFlag & ShapeFlags.TEXT_CHILDREN) hostSetElementText(el, <string>children);
+    else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+      mountChildren(<VNode[]>children, el);
+    }
+
+    hostInsert(el, container, anchor);
   };
 
   return { render };
