@@ -100,5 +100,60 @@ export const createRenderer = (renderOptions: RenderOptions) => {
     hostInsert(el, container, anchor);
   };
 
+  const patchElement = (oldNode: VNode, newNode: VNode) => {
+    const el = newNode.el = oldNode.el;
+    const oldProps = oldNode.props || {};
+    const newProps = newNode.props || {};
+
+    patchProps(oldProps, newProps, <HTMLElement>el);
+
+    patchChildren(oldNode, newNode, <HTMLElement>el);
+  };
+
+  const patchProps = (oldProps: any, newProps: any, el: HTMLElement) => {
+    for (let key in newProps) {
+      hostPatchProp(el, key, oldProps[key], newProps[key]);
+    }
+    for (let key in oldProps) {
+      if (newProps[key] == null) {
+        hostPatchProp(el, key, oldProps[key], null);
+      }
+    }
+  };
+
+  const patchChildren = (oldNode: VNode, newNode: VNode, el: HTMLElement) => {
+    const oldChildren = oldNode.children;
+    const newChildren = newNode.children;
+    const oldShapeFlag = oldNode.shapeFlag;
+    const newShapeFlag = newNode.shapeFlag;
+
+    if (newShapeFlag & ShapeFlags.TEXT_CHILDREN) {
+      // 舊子節點為陣列；新子節點為文字 -> 刪除舊子節點
+      if (oldShapeFlag & ShapeFlags.ARRAY_CHILDREN) unmountChildren(<Array<VNode>>oldChildren);
+      // 舊子節點為文字或空；新子節點為文字
+      if (oldChildren !== newChildren) hostSetElementText(el, <string>newChildren);
+    } else {
+      if (oldShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+        if (newShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+          // diff
+          patchKeyedChildren(<Array<VNode>>oldChildren, <Array<VNode>>newChildren, el);
+        } else {
+          // 舊子節點為陣列，新子節點為空
+          unmountChildren(<Array<VNode>>oldChildren);
+        }
+      } else {
+        // 舊子節點為文本或空，新節點為陣列或空
+        if (oldShapeFlag & ShapeFlags.TEXT_CHILDREN) hostSetElementText(el, '');
+        if (newShapeFlag & ShapeFlags.ARRAY_CHILDREN) mountChildren(<Array<VNode>>newChildren, el);
+      }
+    }
+  };
+
+  const unmountChildren = (children: Array<VNode>) => {
+    children.forEach(child => {
+      unmount(child);
+    });
+  };
+
   return { render };
 };
