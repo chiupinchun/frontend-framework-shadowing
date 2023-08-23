@@ -155,5 +155,46 @@ export const createRenderer = (renderOptions: RenderOptions) => {
     });
   };
 
+  const patchKeyedChildren = (oldChildren: VNode[], newChildren: VNode[], el: HTMLElement) => {
+    let pointer = 0;
+    let oldEnd = oldChildren.length - 1;
+    let newEnd = newChildren.length - 1;
+    // 從開頭找相同子節點
+    while (pointer <= oldEnd && pointer <= newEnd) {
+      const oldNode = oldChildren[pointer];
+      const newNode = newChildren[pointer];
+      if (isSameVnode(oldNode, newNode)) patch(oldNode, newNode, el);
+      else break;
+      pointer++;
+    }
+    // 從結尾找相同子節點
+    while (pointer <= oldEnd && pointer <= newEnd) {
+      const oldNode = oldChildren[oldEnd];
+      const newNode = newChildren[newEnd];
+      if (isSameVnode(oldNode, newNode)) patch(oldNode, newNode, el);
+      else break;
+      oldEnd--;
+      newEnd--;
+    }
+
+    if (pointer > oldEnd) {
+      // 新子有剩舊子沒剩，則創建剩餘新子
+      while (pointer <= newEnd) {
+        const nextPosition = newEnd + 1;
+        const anchor = nextPosition < newChildren.length ? newChildren[nextPosition].el : null;
+        patch(null, newChildren[pointer], el, anchor);
+        pointer++;
+      }
+    } else if (pointer > newEnd) {
+      // 新子沒剩舊子有剩，則刪除剩餘舊子
+      while (pointer <= oldEnd) {
+        unmount(oldChildren[pointer]);
+        pointer++;
+      }
+    } else {
+      // ......
+    }
+  };
+
   return { render };
 };
