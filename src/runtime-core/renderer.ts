@@ -192,7 +192,27 @@ export const createRenderer = (renderOptions: RenderOptions) => {
         pointer++;
       }
     } else {
-      // ......
+      // 亂序比對
+      let oldStart = pointer;
+      let newStart = pointer;
+      // Map{newKey:index}
+      const keyToNewIndexMap: Map<string | number | symbol, number> = new Map();
+      for (let i = newStart; i <= newEnd; i++) keyToNewIndexMap.set(newChildren[i].key, i);
+
+      const toBePatched = newEnd - newStart + 1;
+      // 宣告一個將新子項映射至舊子項（若舊子中無則映射為0）的陣列，用於後續排序
+      const newIndexToOldIndexMap = new Array(toBePatched).fill(0);
+
+      // 遍歷舊子，多的刪，缺的新增
+      for (let i = oldStart; i <= oldEnd; i++) {
+        const oldChild = oldChildren[i];
+        const newIndex = keyToNewIndexMap.get(oldChild.key);
+        if (newIndex === undefined) unmount(oldChild);
+        else {
+          newIndexToOldIndexMap[newIndex - newStart] = i + 1;
+          patch(oldChild, newChildren[newIndex], el);
+        }
+      }
     }
   };
 
