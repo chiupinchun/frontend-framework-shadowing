@@ -53,3 +53,5 @@ export const createVNode = (type: string | symbol, props: Record<string, any>, c
 export function isSameVnode(oldNode: VNode, newNode: VNode) {
   return (oldNode.type === newNode.type) && (oldNode.key === newNode.key);
 }
+
+export const isVnode = (node: any) => !!node?.__v_isVnode;
