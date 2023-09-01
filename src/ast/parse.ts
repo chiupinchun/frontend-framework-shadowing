@@ -1,3 +1,6 @@
+import parseAttrsString from './parseAttr';
+import { parseTextData } from './parseText';
+
 export const parse = (template: string) => {
   template = template.trim();
   // 指針
@@ -52,4 +55,6 @@ export const parse = (template: string) => {
       index++;
     }
   }
+
+  return textStack[0].children;
 };

@@ -30,3 +30,29 @@ const generateAttr = (attrString: string) => {
 
   return result;
 };
+
+const parseAttrData = (attrStr: string) => {
+  const attrArr = attrStr.split('=');
+  const key = attrArr[0].slice(1);
+  const value = eval(attrArr[1].slice(1, attrArr[1].length - 1));
+
+  return key + '="' + value + '"';
+};
+
+const parseStyles = (stylesStr: string) => {
+  const result: Record<string, string> = {};
+  const styles = stylesStr.split(';');
+  styles.forEach(style => {
+    const styleArr = style.split(':');
+    styleArr[0] = checkSlash(styleArr[0]);
+    result[styleArr[0]] = styleArr[1];
+  });
+  return result;
+};
+
+// 處理style中包含'-'的屬性(ex:background-color)
+const checkSlash = (styleKey: string) => {
+  const needUpper = styleKey.indexOf('-');
+  if (needUpper >= 0) return styleKey.slice(0, needUpper) + styleKey[needUpper + 1].toUpperCase() + styleKey.slice(needUpper + 2);
+  return styleKey;
+};
