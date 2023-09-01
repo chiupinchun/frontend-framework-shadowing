@@ -20,6 +20,7 @@ export default (attrsString: string) => {
 };
 
 const generateAttr = (attrString: string) => {
+  if (!attrString) return {};
   attrString = attrString.trim();
   if (attrString[0] === ':') attrString = parseAttrData(attrString);
   const attrArr = attrString.match(/^(.+)="(.+)"$/);

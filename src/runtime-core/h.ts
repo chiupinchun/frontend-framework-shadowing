@@ -6,7 +6,7 @@ type ChildNode = VNode | string;
 export const h: {
   (type: string, h: VNode): VNode;
   (type: string, props: Props): VNode;
-  (type: string, children: ChildNode | ChildNode[]): VNode;
+  (type: string | symbol, children: ChildNode | ChildNode[]): VNode;
   (type: string, props: Props, children?: ChildNode | ChildNode[]): VNode;
   (type: string, props: Props, ...args: ChildNode[]): VNode;
 } = (...args) => {
