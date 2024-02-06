@@ -14,7 +14,7 @@ export const scheduleRoot = (rootFiber: FiberNode) => {
   nextUnitOfWork = workInProgressRoot = rootFiber;
 };
 
-const workLoop: IdleRequestCallback = (deadline) => {
+const workLoop = (deadline: IdleDeadline) => {
   let shouldYeild = false;
   while (nextUnitOfWork && !shouldYeild) {
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);

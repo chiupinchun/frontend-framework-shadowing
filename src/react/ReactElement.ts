@@ -13,7 +13,11 @@ export interface VDom extends VDomConfigWithoutProps {
   __hato_version: true;
 }
 
-export const createElement = (type: string, config: VDom['props'] & VDomConfigWithoutProps, ...children: (VDom | string)[]): VDom => {
+export const createElement = (
+  type: string,
+  config: VDom['props'] & VDomConfigWithoutProps,
+  ...children: (VDom | string)[]
+): VDom => {
   delete config._self;
   delete config._source;
   const { key, ref, ...others } = config;
