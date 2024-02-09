@@ -13,7 +13,10 @@ interface FiberNode<Tag = Symbol> {
   sibling: FiberNode | null
   return: FiberNode | null
   effectTag?: EFFECTS
-  nextEffect?: null // 之後會有個單鏈表 effect list 放這兒
+
+  nextEffect?: FiberNode | null // 之後會有個單鏈表 effect list 放這兒，代表有effect的兒子fiber們
+  firstEffect?: FiberNode | null
+  lastEffect?: FiberNode | null
 }
 
 let nextUnitOfWork: FiberNode | null = null;
@@ -34,6 +37,15 @@ const workLoop = (deadline: IdleDeadline) => {
   requestIdleCallback(workLoop, { timeout: RIC_TIMEOUT });
 };
 
+/**
+ * begin: 從fiber樹頂，由上至下，由左至右。
+ * 
+ * (ex: parent -> child -> sibling -> parent -> sibling -> child -> sibling ...)
+ * 
+ * complete: 從fiber樹最左子葉，由左至右，由下至上。
+ * 
+ * (ex: child -> sibling's child -> sibling -> return -> sibling -> return ...)
+ */
 const performUnitOfWork = (currentFiber: FiberNode) => {
   beginWork(currentFiber);
   if (currentFiber.child) { return currentFiber.child }
@@ -49,8 +61,7 @@ const performUnitOfWork = (currentFiber: FiberNode) => {
 };
 
 /**
- * 創建真實DOM
- * @param fiber 真實DOM來源的fiber
+ * 把cihld、sibling、return串接好，並創建真實DOM掛載到stateNode
  */
 const beginWork = (currentFiber: FiberNode) => {
   if (currentFiber.tag === TAG_ROOT) {
@@ -62,7 +73,41 @@ const beginWork = (currentFiber: FiberNode) => {
   }
 };
 
-const completeUnitOfWork = (currentFiber: FiberNode) => { }
+/**
+ * nextEffect: 將fibers以nextEffect屬性串成鏈表，之後依 子 -> 父 順序進行effect。
+ * 
+ * (順序同completeUnitOfWork。)
+ * 
+ * firstEffect：指向這個fiber節點的最左子葉。
+ * 
+ * lastEffect: 記錄這個fiber節點在以nextEffect屬性串成的鏈表的末項。
+ */
+const completeUnitOfWork = (currentFiber: FiberNode) => {
+  const returnFiber = currentFiber.return
+  if (returnFiber) {
+    if (!returnFiber.firstEffect) {
+      returnFiber.firstEffect = currentFiber.firstEffect
+    }
+
+    if (currentFiber.lastEffect) {
+      if (returnFiber.lastEffect) {
+        returnFiber.lastEffect.nextEffect = currentFiber.firstEffect
+      } else {
+        returnFiber.lastEffect = currentFiber.lastEffect
+      }
+    }
+
+    const effectTag = currentFiber.effectTag
+    if (effectTag) {
+      if (returnFiber.lastEffect) {
+        returnFiber.lastEffect.nextEffect = currentFiber
+      } else {
+        returnFiber.firstEffect = currentFiber
+      }
+      returnFiber.lastEffect = currentFiber
+    }
+  }
+}
 
 const updateHostRoot = (currentFiber: FiberNode) => {
   const newChildren = currentFiber.props.children as VDom[];
