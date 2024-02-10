@@ -18,7 +18,8 @@ const setProp = (dom: HTMLElement, key: string, value: any) => {
         dom.style[styleName as any] = value[styleName]
       }
     }
-  } else {
+  } else if (key === 'children') { }
+  else {
     dom.setAttribute(key, value)
   }
 }

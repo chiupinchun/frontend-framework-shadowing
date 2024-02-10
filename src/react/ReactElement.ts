@@ -20,7 +20,7 @@ export const createElement = (
 ): VDom => {
   delete config._self;
   delete config._source;
-  const { key, ref, ...others } = config;
+  const { key, ref, $$typeof, __hato_version, ...others } = config;
   return {
     type, key, ref,
     props: {

@@ -2,7 +2,7 @@ import { VDom } from "./ReactElement";
 import { EFFECTS, ELEMENT_TEXT, PLACEMENT, RIC_TIMEOUT, TAGS, TAG_HOST, TAG_ROOT, TAG_TEXT } from "./constants";
 import { setProps } from "./utils";
 
-interface FiberNode<Tag = Symbol> {
+export interface FiberNode<Tag = Symbol> {
   tag: Tag;
   props: Record<string, any> & {
     children?: Tag extends typeof TAG_HOST ? VDom[] : (VDom | string)[];
@@ -12,7 +12,7 @@ interface FiberNode<Tag = Symbol> {
   child: FiberNode | null
   sibling: FiberNode | null
   return: FiberNode | null
-  effectTag?: EFFECTS
+  effectTag?: EFFECTS | null
 
   nextEffect?: FiberNode | null // 之後會有個單鏈表 effect list 放這兒，代表有effect的兒子fiber們
   firstEffect?: FiberNode | null
@@ -32,7 +32,7 @@ const workLoop = (deadline: IdleDeadline) => {
     shouldYeild = deadline.timeRemaining() < 1;
   }
   if (!nextUnitOfWork) {
-    console.log('render階段結束');
+    commitRoot()
   }
   requestIdleCallback(workLoop, { timeout: RIC_TIMEOUT });
 };
@@ -52,11 +52,11 @@ const performUnitOfWork = (currentFiber: FiberNode) => {
 
   while (currentFiber) {
     completeUnitOfWork(currentFiber)
-    if (currentFiber.sibling) {
-      return currentFiber.sibling
-    }
+    if (currentFiber.sibling) { return currentFiber.sibling }
     if (currentFiber.return) { currentFiber = currentFiber.return }
+    else { break }
   }
+
   return null;
 };
 
@@ -91,15 +91,17 @@ const completeUnitOfWork = (currentFiber: FiberNode) => {
 
     if (currentFiber.lastEffect) {
       if (returnFiber.lastEffect) {
+        // 鏈表接上currentFiber的首子，串連堂兄弟
         returnFiber.lastEffect.nextEffect = currentFiber.firstEffect
-      } else {
-        returnFiber.lastEffect = currentFiber.lastEffect
       }
+      // 更新鏈表末項
+      returnFiber.lastEffect = currentFiber.lastEffect
     }
 
     const effectTag = currentFiber.effectTag
     if (effectTag) {
       if (returnFiber.lastEffect) {
+        // 從已經接好兒子的鏈表尾端，再接上currentFiber
         returnFiber.lastEffect.nextEffect = currentFiber
       } else {
         returnFiber.firstEffect = currentFiber
@@ -191,6 +193,29 @@ const reconcileChildren = (
 
     newChildIndex++
   }
+}
+
+const commitRoot = () => {
+  let currentFiber = workInProgressRoot?.firstEffect
+  while (currentFiber) {
+    commitWork(currentFiber)
+    currentFiber = currentFiber.nextEffect
+  }
+  workInProgressRoot = null
+}
+
+const commitWork = (currentFiber: FiberNode) => {
+  if (!currentFiber?.stateNode) { return }
+
+  const returnFiber = currentFiber.return
+  const returnDOM = returnFiber?.stateNode
+  if (!returnDOM) { return }
+
+  if (currentFiber.effectTag === PLACEMENT) {
+    returnDOM.appendChild(currentFiber.stateNode)
+  }
+
+  currentFiber.effectTag = null
 }
 
 requestIdleCallback(workLoop, { timeout: RIC_TIMEOUT });
